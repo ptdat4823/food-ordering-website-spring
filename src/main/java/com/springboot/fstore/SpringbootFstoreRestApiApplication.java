@@ -10,5 +10,4 @@ public class SpringbootFstoreRestApiApplication {
     public static void main(String[] args) {
         SpringApplication.run(SpringbootFstoreRestApiApplication.class, args);
     }
-
 }

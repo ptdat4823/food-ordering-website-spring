@@ -63,6 +63,7 @@ public class SecurityConfiguration {
         var cors = new CorsConfiguration();
         cors.setAllowCredentials(true);
         cors.addAllowedOrigin("http://localhost:3000");
+        cors.addAllowedOrigin("https://my-food-selling-website.vercel.app");
         cors.addAllowedHeader("*");
         cors.addAllowedMethod("*");
         cors.setMaxAge(3600L);

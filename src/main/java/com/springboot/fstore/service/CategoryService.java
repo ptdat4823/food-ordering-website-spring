@@ -10,9 +10,9 @@ public interface CategoryService {
 
     CategoryDTO getCategoryById(int id);
 
-    CategoryDTO createCategory(MultipartFile[] files, CategoryDTO categoryDTO);
+    CategoryDTO createCategory(CategoryDTO categoryDTO);
 
-    CategoryDTO updateCategory(int id, MultipartFile[] files, CategoryDTO categoryDTO);
+    CategoryDTO updateCategory(int id, CategoryDTO categoryDTO);
 
     void deleteCategory(int id);
 }

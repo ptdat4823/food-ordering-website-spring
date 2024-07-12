@@ -10,7 +10,7 @@ import java.util.List;
 public interface UserService {
     UserDTO getInfoMe();
 
-    UserDTO updateInfoMe(MultipartFile[] files, UserDTO userDTO);
+    UserDTO updateInfoMe(UserDTO userDTO);
 
     void changePassword(String oldPassword, String newPassword);
 

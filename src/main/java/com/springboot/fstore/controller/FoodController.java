@@ -30,17 +30,14 @@ public class FoodController {
 
     @Operation(summary = "Create food")
     @PostMapping
-    public ResponseEntity<FoodDTO> createFood(@RequestPart(value = "files", required = false) MultipartFile[] files,
-                                              @RequestPart("data") FoodDTO foodDTO) {
-        return ResponseEntity.status(201).body(foodService.createFood(files, foodDTO));
+    public ResponseEntity<FoodDTO> createFood(@RequestPart("data") FoodDTO foodDTO) {
+        return ResponseEntity.status(201).body(foodService.createFood(foodDTO));
     }
 
     @Operation(summary = "Update food")
     @PutMapping("/{id}")
-    public ResponseEntity<FoodDTO> updateFood(@PathVariable int id,
-                                              @RequestPart(value = "files", required = false) MultipartFile[] files,
-                                              @RequestPart("data") FoodDTO foodDTO) {
-        return ResponseEntity.ok(foodService.updateFood(id, files, foodDTO));
+    public ResponseEntity<FoodDTO> updateFood(@PathVariable int id, @RequestPart("data") FoodDTO foodDTO) {
+        return ResponseEntity.ok(foodService.updateFood(id, foodDTO));
     }
 
     @Operation(summary = "Delete food")

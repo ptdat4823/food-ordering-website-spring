@@ -6,14 +6,15 @@ import com.springboot.fstore.mapper.FoodMapper;
 import com.springboot.fstore.mapper.FoodSizeMapper;
 import com.springboot.fstore.payload.FoodDTO;
 import com.springboot.fstore.payload.FoodSizeDTO;
-import com.springboot.fstore.repository.*;
-import com.springboot.fstore.service.FileService;
+import com.springboot.fstore.repository.CategoryRepository;
+import com.springboot.fstore.repository.FoodRepository;
+import com.springboot.fstore.repository.OrderRepository;
 import com.springboot.fstore.service.FoodService;
 import com.springboot.fstore.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,26 +26,10 @@ public class FoodServiceImpl implements FoodService {
     private final FoodRepository foodRepository;
     private final OrderRepository orderRepository;
     private final CategoryRepository categoryRepository;
-    private final FileService fileService;
 
     @Override
-    public FoodDTO createFood(MultipartFile[] files, FoodDTO foodDTO) {
+    public FoodDTO createFood(FoodDTO foodDTO) {
         Food food = FoodMapper.toFood(foodDTO);
-
-        if (files != null) {
-            List<Image> images = new ArrayList<>();
-            for (MultipartFile file : files) {
-                String url = fileService.uploadFile(file);
-                if (url == null) continue;
-                Image image = Image.builder()
-                        .url(url)
-                        .build();
-                images.add(image);
-            }
-            if (!images.isEmpty()) {
-                food.setImages(images);
-            }
-        }
 
         if (foodDTO.getTags() != null) {
             food.setTags(foodDTO.getTags()
@@ -79,41 +64,19 @@ public class FoodServiceImpl implements FoodService {
     }
 
     @Override
-    public FoodDTO updateFood(int foodId, MultipartFile[] files, FoodDTO foodDTO) {
+    public FoodDTO updateFood(int foodId, FoodDTO foodDTO) {
         Food food = foodRepository.findById(foodId).orElseThrow(() -> new CustomException("Food not found", HttpStatus.NOT_FOUND));
         food.setName(foodDTO.getName());
         food.setDescription(foodDTO.getDescription());
         food.setStatus(foodDTO.getStatus());
 
+        // Ensure images collection is mutable
+        List<Image> newImages = foodDTO.getImages() != null ? foodDTO.getImages().stream().map(url -> Image.builder().url(url).build()).toList() : new ArrayList<>();
+        food.getImages().clear();
+        food.getImages().addAll(newImages);
+
         food.getTags().clear();
 
-        //check if user remove some images
-        List<String> currentImages = food.getImages().stream().map(Image::getUrl).toList();
-        List<String> uploadedImages = foodDTO.getImages();
-        List<String> intersec = new ArrayList<>();
-        // get intersec of currentImages and uploadedImages
-        for (String image : uploadedImages) {
-            if (currentImages.contains(image)) {
-                intersec.add(image);
-            }
-        }
-        food.getImages().removeIf(image -> !intersec.contains(image.getUrl()));
-
-        if (files != null) {
-            List<Image> images = new ArrayList<>();
-            for (MultipartFile file : files) {
-                String url = fileService.uploadFile(file);
-                if (url == null) continue;
-                Image image = Image.builder()
-                        .url(url)
-                        .build();
-                images.add(image);
-            }
-
-            if (!images.isEmpty()) {
-                food.getImages().addAll(images);
-            }
-        }
         if (foodDTO.getTags() != null) {
             food.getTags().addAll(foodDTO.getTags()
                     .stream()
@@ -163,16 +126,7 @@ public class FoodServiceImpl implements FoodService {
                 food.getFoodSizes().add(foodSize);
             }
         }
-//        if (foodDTO.getFoodSizes() != null) {
-//            food.getFoodSizes().addAll(foodDTO.getFoodSizes()
-//                    .stream()
-//                    .map(foodSizeDTO -> {
-//                        FoodSize foodSize = FoodSizeMapper.toFoodSize(foodSizeDTO);
-//                        foodSize.setFood(food);
-//                        return foodSize;
-//                    })
-//                    .toList());
-//        }
+
         Food newFood = foodRepository.save(food);
         return FoodMapper.toFoodDTO(newFood);
     }
@@ -199,9 +153,16 @@ public class FoodServiceImpl implements FoodService {
 
     @Override
     public List<FoodDTO> getFoods() {
-        User user = userService.getAuthorizedUser();
+        User user = null;
+
+        try {
+            user = userService.getAuthorizedUser();
+        } catch (Exception e) {
+            // do no thing
+        }
+
         List<Food> foods = foodRepository.findAll();
-        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+        List<Order> orders = user != null ? orderRepository.findAllByUserId(user.getId()) : new ArrayList<>();
         List<Order> allOrders = orderRepository.findAll();
 
 

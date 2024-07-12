@@ -30,6 +30,7 @@ public class FoodMapper {
                 .name(foodDTO.getName())
                 .description(foodDTO.getDescription())
                 .status(foodDTO.getStatus())
+                .images(foodDTO.getImages() != null ? foodDTO.getImages().stream().map(url -> Image.builder().url(url).build()).toList() : null)
                 .isDeleted(foodDTO.getIsDeleted() != null && foodDTO.getIsDeleted())
                 .build();
     }

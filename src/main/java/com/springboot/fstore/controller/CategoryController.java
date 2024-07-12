@@ -30,17 +30,15 @@ public class CategoryController {
 
     @Operation(summary = "Create category")
     @PostMapping
-    public ResponseEntity<CategoryDTO> createCategory(@RequestPart(value = "files", required = false) MultipartFile[] files,
-                                                      @RequestPart("data") CategoryDTO categoryDTO) {
-        return ResponseEntity.status(201).body(categoryService.createCategory(files, categoryDTO));
+    public ResponseEntity<CategoryDTO> createCategory(@RequestPart("data") CategoryDTO categoryDTO) {
+        return ResponseEntity.status(201).body(categoryService.createCategory(categoryDTO));
     }
 
     @Operation(summary = "Update category")
     @PutMapping("/{id}")
     public ResponseEntity<CategoryDTO> updateCategory(@PathVariable int id,
-                                                      @RequestPart(value = "files", required = false) MultipartFile[] files,
                                                       @RequestPart("data") CategoryDTO categoryDTO) {
-        return ResponseEntity.ok(categoryService.updateCategory(id, files, categoryDTO));
+        return ResponseEntity.ok(categoryService.updateCategory(id, categoryDTO));
     }
 
     @Operation(summary = "Delete category")

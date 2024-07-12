@@ -29,8 +29,7 @@ public class UserController {
 
     @Operation(summary = "Update user info")
     @PutMapping("/me")
-    public ResponseEntity<UserDTO> updateInfoMe(@RequestPart(value = "files", required = false) MultipartFile[] files,
-                                                @RequestPart("data") UserDTO userDTO) {
-        return ResponseEntity.ok(userService.updateInfoMe(files, userDTO));
+    public ResponseEntity<UserDTO> updateInfoMe(@RequestPart("data") UserDTO userDTO) {
+        return ResponseEntity.ok(userService.updateInfoMe(userDTO));
     }
 }
